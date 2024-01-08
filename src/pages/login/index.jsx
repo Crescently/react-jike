@@ -1,7 +1,7 @@
 import { Button, Card, Form, Input, message } from "antd";
 import logo from "@/assets/logo.png";
 import "./index.scss";
-import { userLoginUsingPost } from "@/store/modules/user";
+import { userLogin } from "@/store/modules/user";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +10,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const getLoginInfo = async (values) => {
     // 进行登录
-    await dispatch(userLoginUsingPost(values));
+    await dispatch(userLogin(values));
     // 登陆成功后提示用户并跳转到首页
     navigate("/");
     message.success("登陆成功");

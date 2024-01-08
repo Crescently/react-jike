@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import request from "@/utils/request";
 import { getToken, setToken } from "@/utils/token";
+import { userLoginUsingPost } from "@/apis/login";
 
 const userStore = createSlice({
   name: "user",
@@ -19,13 +19,14 @@ const userStore = createSlice({
 const { setUserToken } = userStore.actions;
 const userReducer = userStore.reducer;
 
-const userLoginUsingPost = (loginForm) => {
-  return async (dispatch) => {
-    const res = await request.post("/authorizations", loginForm);
-    // 将token 存入
-    dispatch(setUserToken(res.data.token));
-  };
-};
 
-export { userLoginUsingPost };
+const userLogin = (loginForm) => {
+  return async (dispatch)=>{
+    const res= await userLoginUsingPost(loginForm)
+    // 将token存入redux和本地
+    dispatch(setUserToken(res.data.token));
+  }
+}
+
+export { userLogin };
 export default userReducer;
