@@ -1,4 +1,3 @@
-import { Layout, Menu, Popconfirm } from "antd";
 import {
   DiffOutlined,
   EditOutlined,
@@ -10,6 +9,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { clearUserInfo, getUserInfo } from "@/store/modules/user";
+import { Layout, Menu, Popconfirm } from "antd";
 
 const { Header, Sider } = Layout;
 
@@ -79,7 +79,7 @@ const BasicLayout = () => {
           <Menu
             mode="inline"
             theme="dark"
-            selectedkeys={selectedKey}
+            selectedKeys={selectedKey}
             onClick={doMenuClick}
             items={items}
             style={{ height: "100%", borderRight: 0 }}
