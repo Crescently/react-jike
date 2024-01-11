@@ -10,12 +10,16 @@ import {
   Space,
   Upload,
 } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import "./index.scss";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useState } from "react";
-import { createArticleUsingPost } from "@/apis/article";
+import { useEffect, useState } from "react";
+import {
+  createArticleUsingPost,
+  getArticleByIdUsingGet,
+  updateArticleUsingPut,
+} from "@/apis/article";
 import { PlusOutlined } from "@ant-design/icons";
 import { useChannel } from "@/hooks/useChannel";
 
@@ -28,7 +32,7 @@ const Publish = () => {
   const articleSubmit = async (formValue) => {
     console.log(formValue);
     // 按照接口文档处理参数
-    const {title, content, channel_id} = formValue;
+    const { title, content, channel_id } = formValue;
     // 校验图片数据是否一致
     if (imageList.length !== imageType) {
       return message.warning("封面类型与数量不一致");
@@ -38,14 +42,25 @@ const Publish = () => {
       content: content,
       cover: {
         type: imageType,
-        images: imageList.map((item) => item.response.data.url),
+        // 这里的url处理逻辑只适用于发布新文章，不适用于编辑文章
+        // images: imageList.map((item) => item.response.data.url),
+        images: imageList.map((item) => {
+          if (item.response) {
+            return item.response.data.url;
+          } else {
+            return item.url;
+          }
+        }),
       },
       channel_id: channel_id,
     };
-    console.log(queryData)
-
     // 提交数据
-    await createArticleUsingPost(queryData);
+    if (articleId) {
+      // 文章编辑
+      await updateArticleUsingPut({ ...queryData, id: articleId });
+    } else {
+      await createArticleUsingPost(queryData);
+    }
   };
 
   // 上传图片
@@ -61,6 +76,38 @@ const Publish = () => {
     setImageType(e.target.value);
   };
 
+  // 文章管理跳转时回填数据
+  // 获取传过来的ID
+  const [searchParams] = useSearchParams();
+  const articleId = searchParams.get("id");
+  // 获取实例
+  const [form] = Form.useForm();
+  useEffect(() => {
+    const getArticleById = async () => {
+      const res = await getArticleByIdUsingGet(articleId);
+      const { cover, ...formValue } = res.data;
+      // 处理图片选择回显
+      form.setFieldsValue({
+        ...formValue,
+        type: cover.type,
+      });
+
+      // 回填图片列表
+      setImageType(cover.type);
+      // 显示图片
+      setImageList(
+        cover.images.map((url) => {
+          return { url };
+        }),
+      );
+    };
+
+    if (articleId) {
+      // id不为空 说明是从文章管理跳转来的 才会执行方法
+      getArticleById();
+    }
+  }, [articleId, form]);
+
   return (
     <div className="publish">
       <Card
@@ -68,7 +115,7 @@ const Publish = () => {
           <Breadcrumb
             items={[
               { title: <Link to={"/"}>首页</Link> },
-              { title: "发布文章" },
+              { title: `${articleId ? "编辑" : "发布"}文章` },
             ]}
           />
         }
@@ -78,6 +125,7 @@ const Publish = () => {
           wrapperCol={{ span: 16 }}
           initialValues={{ type: 0 }}
           onFinish={articleSubmit}
+          form={form}
         >
           <Form.Item
             label="标题"
@@ -115,6 +163,7 @@ const Publish = () => {
                 action={"http://geek.itheima.net/v1_0/upload"}
                 onChange={onUploadChange}
                 maxCount={imageType}
+                fileList={imageList}
               >
                 <div style={{ marginTop: 8 }}>
                   <PlusOutlined />
