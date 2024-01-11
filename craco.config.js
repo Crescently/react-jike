@@ -1,10 +1,11 @@
 const path = require("path");
-
-//配置根目录别名
 module.exports = {
-    webpack: {
-        alias: {
-            "@": path.resolve(__dirname, "src"),
-        },
+  // webpack 配置
+  webpack: {
+    // 配置别名
+    alias: {
+      // 约定：使用 @ 表示 src 文件所在路径
+      "@": path.resolve(__dirname, "src"),
     },
+  },
 };

@@ -2,9 +2,12 @@ import { createBrowserRouter } from "react-router-dom";
 import BasicLayout from "@/pages/layout";
 import LoginPage from "@/pages/login";
 import { AuthRoute } from "@/components/AuthRoute";
-import Home from "@/pages/home";
-import Article from "@/pages/article";
-import Publish from "@/pages/publish";
+import { lazy, Suspense } from "react";
+
+// 实现路由懒加载--使用lazy函数对组件进行导入
+const Home = lazy(() => import("@/pages/home"));
+const Article = lazy(() => import("@/pages/article"));
+const Publish = lazy(() => import("@/pages/publish"));
 
 const router = createBrowserRouter([
   {
@@ -17,15 +20,27 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
+        element: (
+          <Suspense fallback={"加载中"}>
+            <Home />
+          </Suspense>
+        ),
       },
       {
         path: "article",
-        element: <Article />,
+        element: (
+          <Suspense fallback={"加载中"}>
+            <Article />
+          </Suspense>
+        ),
       },
       {
         path: "publish",
-        element: <Publish />,
+        element: (
+          <Suspense fallback={"加载中"}>
+            <Publish />
+          </Suspense>
+        ),
       },
     ],
   },
