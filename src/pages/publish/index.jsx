@@ -14,30 +14,21 @@ import { Link } from "react-router-dom";
 import "./index.scss";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useEffect, useState } from "react";
-import { createArticleUsingPost, getChannelListUsingGet } from "@/apis/article";
+import { useState } from "react";
+import { createArticleUsingPost } from "@/apis/article";
 import { PlusOutlined } from "@ant-design/icons";
+import { useChannel } from "@/hooks/useChannel";
 
 const { Option } = Select;
 
 const Publish = () => {
-  // 获取频道列表
-  const [channelList, setChannelList] = useState([]);
-  useEffect(() => {
-    // 获取频道信息
-    const getChannelList = async () => {
-      const res = await getChannelListUsingGet();
-      setChannelList(res.data.channels);
-    };
-
-    getChannelList();
-  }, []);
+  const { channelList } = useChannel();
 
   // 提交表单
   const articleSubmit = async (formValue) => {
     console.log(formValue);
     // 按照接口文档处理参数
-    const [title, content, channel_id] = formValue;
+    const {title, content, channel_id} = formValue;
     // 校验图片数据是否一致
     if (imageList.length !== imageType) {
       return message.warning("封面类型与数量不一致");
@@ -51,6 +42,7 @@ const Publish = () => {
       },
       channel_id: channel_id,
     };
+    console.log(queryData)
 
     // 提交数据
     await createArticleUsingPost(queryData);
